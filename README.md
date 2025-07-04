@@ -79,15 +79,29 @@ habit-tracker-bolt/
 
 ## Deployment
 
+### Local Build
+
 To build for production:
 
 ```bash
-npm run build
-# or
 pnpm build
 ```
 
 The production files will be generated in the `dist/` directory.
+
+### CloudFlare Pages Deployment
+
+1. Push your changes to GitHub (including the updated pnpm-lock.yaml)
+2. In CloudFlare Pages:
+
+   - Connect your GitHub repository
+   - Set build command to: `pnpm install --no-frozen-lockfile && pnpm build`
+   - Set build output directory to: `dist`
+   - Add environment variables:
+     - `VITE_SUPABASE_URL` (your Supabase URL)
+     - `VITE_SUPABASE_KEY` (your Supabase public key)
+
+3. CloudFlare will automatically deploy your app on each push to the main branch
 
 ## Contributing
 
