@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { supabase } from "../lib/supabase";
 import { Plus, Trash2, Edit2, Check, X, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,14 +15,14 @@ import { Badge } from "@/components/ui/badge";
 import { useTheme } from "../App";
 
 interface Habit {
-  id: number;
+  id: string;
   name: string;
   color: string;
   completedDates: Set<string>;
 }
 
 interface EditingHabit {
-  id: number;
+  id: string;
   name: string;
 }
 
@@ -40,6 +41,47 @@ const HabitTrackerApp = () => {
   const { theme, toggleTheme } = useTheme();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load habits from Supabase
+  useEffect(() => {
+    const loadHabits = async () => {
+      try {
+        const { data: habitsData, error } = await supabase
+          .from("habits")
+          .select("*");
+
+        if (error) throw error;
+
+        const { data: entriesData, error: entriesError } = await supabase
+          .from("habit_entries")
+          .select("*");
+
+        if (entriesError) throw entriesError;
+
+        const habitsWithEntries = habitsData.map((habit) => {
+          const completedDates = new Set(
+            entriesData
+              .filter((entry) => entry.habit_id === habit.id && entry.completed)
+              .map((entry) => entry.date)
+          );
+          return {
+            ...habit,
+            color: habit.color || generateRandomColor(),
+            completedDates,
+          };
+        });
+
+        setHabits(habitsWithEntries);
+      } catch (error) {
+        console.error("Error loading habits:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadHabits();
+  }, []);
   const [editingHabit, setEditingHabit] = useState<EditingHabit | null>(null);
   const [newHabitName, setNewHabitName] = useState("");
 
@@ -108,31 +150,98 @@ const HabitTrackerApp = () => {
   };
 
   // Add new habit
-  const addHabit = () => {
+  const addHabit = async () => {
     if (newHabitName.trim()) {
       const newHabit: Habit = {
-        id: Date.now(),
+        id: crypto.randomUUID(),
         name: newHabitName.trim(),
         color: generateRandomColor(),
         completedDates: new Set<string>(),
       };
-      setHabits([...habits, newHabit]);
-      setNewHabitName("");
+
+      try {
+        const { error } = await supabase.from("habits").insert({
+          id: newHabit.id,
+          name: newHabit.name,
+          color: newHabit.color,
+          created_at: new Date().toISOString(),
+        });
+
+        if (error) throw error;
+
+        setHabits([...habits, newHabit]);
+        setNewHabitName("");
+      } catch (error) {
+        console.error("Error adding habit:", error);
+      }
     }
   };
 
   // Delete habit
-  const deleteHabit = (habitId: number) => {
-    setHabits(habits.filter((habit) => habit.id !== habitId));
+  const deleteHabit = async (habitId: string) => {
+    try {
+      // First delete all entries for this habit
+      const { error: entriesError } = await supabase
+        .from("habit_entries")
+        .delete()
+        .eq("habit_id", habitId);
+
+      if (entriesError) throw entriesError;
+
+      // Then delete the habit itself
+      const { error: habitError } = await supabase
+        .from("habits")
+        .delete()
+        .eq("id", habitId);
+
+      if (habitError) throw habitError;
+
+      // Update local state
+      setHabits(habits.filter((habit) => habit.id !== habitId));
+    } catch (error) {
+      console.error("Error deleting habit:", error);
+    }
   };
 
   // Toggle date completion for a habit
-  const toggleDate = (habitId: number, dateString: string) => {
-    setHabits(
-      habits.map((habit) => {
+  const toggleDate = async (habitId: string, dateString: string) => {
+    console.log("toggleDate called", { habitId, dateString });
+    const habit = habits.find((h) => h.id === habitId);
+    if (!habit) {
+      console.log("Habit not found");
+      return;
+    }
+
+    const isCompleted = habit.completedDates.has(dateString);
+    console.log("Current state:", { isCompleted });
+
+    try {
+      if (isCompleted) {
+        console.log("Removing completion");
+        const { data, error } = await supabase
+          .from("habit_entries")
+          .delete()
+          .eq("habit_id", habitId)
+          .eq("date", dateString);
+
+        console.log("Delete result:", { data, error });
+        if (error) throw error;
+      } else {
+        console.log("Adding completion");
+        const { data, error } = await supabase.from("habit_entries").insert({
+          habit_id: habitId,
+          date: dateString,
+          completed: true,
+        });
+
+        console.log("Insert result:", { data, error });
+        if (error) throw error;
+      }
+
+      const updatedHabits = habits.map((habit) => {
         if (habit.id === habitId) {
           const newCompletedDates = new Set(habit.completedDates);
-          if (newCompletedDates.has(dateString)) {
+          if (isCompleted) {
             newCompletedDates.delete(dateString);
           } else {
             newCompletedDates.add(dateString);
@@ -140,25 +249,41 @@ const HabitTrackerApp = () => {
           return { ...habit, completedDates: newCompletedDates };
         }
         return habit;
-      })
-    );
+      });
+
+      console.log("Updated habits:", updatedHabits);
+      setHabits(updatedHabits);
+    } catch (error) {
+      console.error("Error toggling habit completion:", error);
+    }
   };
 
   // Start editing habit name
-  const startEditing = (habitId: number, currentName: string) => {
+  const startEditing = (habitId: string, currentName: string) => {
     setEditingHabit({ id: habitId, name: currentName });
   };
 
   // Save edited habit name
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (editingHabit && editingHabit.name.trim()) {
-      setHabits(
-        habits.map((habit) =>
-          habit.id === editingHabit.id
-            ? { ...habit, name: editingHabit.name.trim() }
-            : habit
-        )
-      );
+      try {
+        const { error } = await supabase
+          .from("habits")
+          .update({ name: editingHabit.name.trim() })
+          .eq("id", editingHabit.id);
+
+        if (error) throw error;
+
+        setHabits(
+          habits.map((habit) =>
+            habit.id === editingHabit.id
+              ? { ...habit, name: editingHabit.name.trim() }
+              : habit
+          )
+        );
+      } catch (error) {
+        console.error("Error updating habit name:", error);
+      }
     }
     setEditingHabit(null);
   };
@@ -337,13 +462,20 @@ const HabitTrackerApp = () => {
                               isCurrentYear
                                 ? "cursor-pointer hover:ring-2 hover:ring-gray-400"
                                 : "cursor-default"
-                            } ${isToday ? "ring-2 ring-gray-800" : ""}`}
+                            } ${isToday ? "ring-2" : ""}`}
                             style={{
                               backgroundColor: isCurrentYear
                                 ? isCompleted
                                   ? habit.color
+                                  : theme === "dark"
+                                  ? "rgb(50, 50, 50)"
                                   : "#ebedf0"
+                                : theme === "dark"
+                                ? "rgb(20, 20, 20)"
                                 : "#fafbfc",
+                              ...(isToday
+                                ? { "--tw-ring-color": habit.color }
+                                : {}),
                             }}
                             onClick={() =>
                               isCurrentYear &&
@@ -398,7 +530,7 @@ const HabitTrackerApp = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto">
-        <Card className="mb-8">
+        <Card className="mb-8 bg-gray-50 dark:bg-neutral-900">
           <CardHeader>
             <div className="flex items-center justify-between">
               <h1 className="text-3xl font-bold">Habit Tracker</h1>
@@ -417,7 +549,7 @@ const HabitTrackerApp = () => {
                   <span className="sr-only">Toggle theme</span>
                 </Button>
                 <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium">Year:</label>
+                  {/* <label className="text-sm font-medium">Year:</label> */}
                   <Select
                     value={selectedYear.toString()}
                     onValueChange={(value) => setSelectedYear(parseInt(value))}
