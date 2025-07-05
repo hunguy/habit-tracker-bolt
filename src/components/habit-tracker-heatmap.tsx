@@ -404,100 +404,102 @@ const HabitTrackerApp = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto w-full">
-            <div className="flex items-start gap-1 min-w-fit overflow-x-visible">
-              {/* Day labels */}
-              <div className="flex flex-col gap-1 mr-2">
-                <div className="h-4"></div> {/* Spacer for month labels */}
-                {dayLabels.map((day, index) => (
-                  <div
-                    key={day}
-                    className={`text-xs text-muted-foreground h-3 flex items-center ${
-                      index % 2 === 0 ? "" : "opacity-0"
-                    }`}
-                    style={{ fontSize: "11px" }}
-                  >
-                    {day}
-                  </div>
-                ))}
-              </div>
-
-              {/* Heatmap grid */}
-              <div className="flex flex-col">
-                {/* Month labels */}
-                <div className="flex gap-1 mb-1 h-4">
-                  {weeks.map((week, weekIndex) => {
-                    const monthLabel = monthLabels.find(
-                      (m) => m.weekIndex === weekIndex
-                    );
-                    return (
-                      <div
-                        key={weekIndex}
-                        className="text-xs text-muted-foreground w-3 flex items-center justify-center"
-                        style={{ fontSize: "11px" }}
-                      >
-                        {monthLabel ? monthLabel.month : ""}
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Week columns */}
-                <div className="flex gap-1">
-                  {weeks.map((week, weekIndex) => (
-                    <div key={weekIndex} className="flex flex-col gap-1">
-                      {week.map((day, dayIndex) => {
-                        const isCompleted = habit.completedDates.has(
-                          day.dateString
-                        );
-                        const isToday =
-                          day.dateString ===
-                          new Date().toISOString().split("T")[0];
-                        const isCurrentYear = day.isCurrentYear;
-
-                        return (
-                          <div
-                            key={`${weekIndex}-${dayIndex}`}
-                            className={`w-3 h-3 rounded-sm transition-all duration-200 ${
-                              isCurrentYear
-                                ? "cursor-pointer hover:ring-2 hover:ring-gray-400"
-                                : "cursor-default"
-                            } ${isToday ? "ring-2" : ""}`}
-                            style={{
-                              backgroundColor: isCurrentYear
-                                ? isCompleted
-                                  ? habit.color
-                                  : theme === "dark"
-                                  ? "rgb(50, 50, 50)"
-                                  : "#ebedf0"
-                                : theme === "dark"
-                                ? "rgb(20, 20, 20)"
-                                : "#fafbfc",
-                              ...(isToday
-                                ? { "--tw-ring-color": habit.color }
-                                : {}),
-                            }}
-                            onClick={() =>
-                              isCurrentYear &&
-                              toggleDate(habit.id, day.dateString)
-                            }
-                            title={`${day.date.toLocaleDateString()} - ${
-                              isCurrentYear
-                                ? isCompleted
-                                  ? "Completed"
-                                  : "Not completed"
-                                : "Outside current year"
-                            }`}
-                          />
-                        );
-                      })}
+          <div className="relative">
+            <div className="overflow-x-auto w-full">
+              <div className="flex items-start gap-1 min-w-fit overflow-x-visible">
+                {/* Day labels */}
+                <div className="flex flex-col gap-1 mr-2">
+                  <div className="h-4"></div> {/* Spacer for month labels */}
+                  {dayLabels.map((day, index) => (
+                    <div
+                      key={day}
+                      className={`text-xs text-muted-foreground h-3 flex items-center ${
+                        index % 2 === 0 ? "" : "opacity-0"
+                      }`}
+                      style={{ fontSize: "11px" }}
+                    >
+                      {day}
                     </div>
                   ))}
+                </div>
+
+                {/* Heatmap grid */}
+                <div className="flex flex-col">
+                  {/* Month labels */}
+                  <div className="flex gap-1 mb-1 h-4">
+                    {weeks.map((week, weekIndex) => {
+                      const monthLabel = monthLabels.find(
+                        (m) => m.weekIndex === weekIndex
+                      );
+                      return (
+                        <div
+                          key={weekIndex}
+                          className="text-xs text-muted-foreground w-3 flex items-center justify-center"
+                          style={{ fontSize: "11px" }}
+                        >
+                          {monthLabel ? monthLabel.month : ""}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Week columns */}
+                  <div className="flex gap-1">
+                    {weeks.map((week, weekIndex) => (
+                      <div key={weekIndex} className="flex flex-col gap-1">
+                        {week.map((day, dayIndex) => {
+                          const isCompleted = habit.completedDates.has(
+                            day.dateString
+                          );
+                          const isToday =
+                            day.dateString ===
+                            new Date().toISOString().split("T")[0];
+                          const isCurrentYear = day.isCurrentYear;
+
+                          return (
+                            <div
+                              key={`${weekIndex}-${dayIndex}`}
+                              className={`w-3 h-3 rounded-sm transition-all duration-200 ${
+                                isCurrentYear
+                                  ? "cursor-pointer hover:ring-2 hover:ring-gray-400"
+                                  : "cursor-default"
+                              } ${isToday ? "ring-2" : ""}`}
+                              style={{
+                                backgroundColor: isCurrentYear
+                                  ? isCompleted
+                                    ? habit.color
+                                    : theme === "dark"
+                                    ? "rgb(50, 50, 50)"
+                                    : "#ebedf0"
+                                  : theme === "dark"
+                                  ? "rgb(20, 20, 20)"
+                                  : "#fafbfc",
+                                ...(isToday
+                                  ? { "--tw-ring-color": habit.color }
+                                  : {}),
+                              }}
+                              onClick={() =>
+                                isCurrentYear &&
+                                toggleDate(habit.id, day.dateString)
+                              }
+                              title={`${day.date.toLocaleDateString()} - ${
+                                isCurrentYear
+                                  ? isCompleted
+                                    ? "Completed"
+                                    : "Not completed"
+                                  : "Outside current year"
+                              }`}
+                            />
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Legend */}
+            {/* Legend - now positioned outside scrollable container */}
             <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
               <span>Less</span>
               <div className="flex gap-1">
@@ -584,7 +586,8 @@ const HabitTrackerApp = () => {
               />
               <Button onClick={addHabit}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add Habit
+                <span className="hidden sm:inline">Add Habit</span>
+                <span className="sm:hidden">Add</span>
               </Button>
             </div>
           </CardContent>
