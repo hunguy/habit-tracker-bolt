@@ -404,8 +404,8 @@ const HabitTrackerApp = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <div className="flex items-start gap-1 min-w-fit">
+          <div className="overflow-x-auto w-full">
+            <div className="flex items-start gap-1 min-w-fit overflow-x-visible">
               {/* Day labels */}
               <div className="flex flex-col gap-1 mr-2">
                 <div className="h-4"></div> {/* Spacer for month labels */}
@@ -528,9 +528,9 @@ const HabitTrackerApp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-6xl mx-auto">
-        <Card className="mb-8 bg-gray-50 dark:bg-neutral-900">
+    <div className="min-h-screen w-full bg-background">
+      <div className="w-full px-2 sm:px-4 mx-auto">
+        <Card className="mb-4 sm:mb-8 bg-gray-50 dark:bg-neutral-900 w-full">
           <CardHeader>
             <div className="flex items-center justify-between">
               <h1 className="text-3xl font-bold">Habit Tracker</h1>
