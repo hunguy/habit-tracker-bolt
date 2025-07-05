@@ -413,9 +413,7 @@ const HabitTrackerApp = () => {
                   {dayLabels.map((day, index) => (
                     <div
                       key={day}
-                      className={`text-xs text-muted-foreground h-3 flex items-center ${
-                        index % 2 === 0 ? "" : "opacity-0"
-                      }`}
+                      className={`text-xs text-muted-foreground h-3 flex items-center `}
                       style={{ fontSize: "11px" }}
                     >
                       {day}
@@ -424,7 +422,7 @@ const HabitTrackerApp = () => {
                 </div>
 
                 {/* Heatmap grid */}
-                <div className="flex flex-col">
+                <div className="flex flex-col pb-0.5">
                   {/* Month labels */}
                   <div className="flex gap-1 mb-1 h-4">
                     {weeks.map((week, weekIndex) => {

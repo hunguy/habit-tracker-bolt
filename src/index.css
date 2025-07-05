@@ -1,8 +1,8 @@
+@import "@fontsource/geist";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import "@fontsource/geist";
 
 @layer base {
   :root {
