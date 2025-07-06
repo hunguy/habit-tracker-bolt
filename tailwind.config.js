@@ -6,6 +6,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Geist Mono", "sans-serif"],
+        doto: ["Doto", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

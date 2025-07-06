@@ -49,8 +49,10 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-background w-full max-w-sm sm:max-w-5xl p-0.5">
-        <HabitTrackerApp />
+      <div className="min-h-screen bg-background w-full flex flex-col items-center pt-8">
+        <div className="w-full max-w-sm sm:max-w-5xl p-0.5">
+          <HabitTrackerApp />
+        </div>
       </div>
       <StagewiseToolbar
         config={{

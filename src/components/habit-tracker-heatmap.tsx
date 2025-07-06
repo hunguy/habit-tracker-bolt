@@ -362,7 +362,7 @@ const HabitTrackerApp = () => {
                     onClick={saveEdit}
                     size="sm"
                     variant="ghost"
-                    className="text-green-600 hover:text-green-800"
+                    className="text-primary hover:text-primary-foreground"
                   >
                     <Check size={16} />
                   </Button>
@@ -370,7 +370,7 @@ const HabitTrackerApp = () => {
                     onClick={cancelEdit}
                     size="sm"
                     variant="ghost"
-                    className="text-red-600 hover:text-red-800"
+                    className="text-destructive hover:text-destructive-foreground"
                   >
                     <X size={16} />
                   </Button>
@@ -396,7 +396,7 @@ const HabitTrackerApp = () => {
                 onClick={() => deleteHabit(habit.id)}
                 size="sm"
                 variant="ghost"
-                className="text-red-500 hover:text-red-700"
+                className="text-destructive hover:text-destructive-foreground"
               >
                 <Trash2 size={16} />
               </Button>
@@ -467,11 +467,11 @@ const HabitTrackerApp = () => {
                                   ? isCompleted
                                     ? habit.color
                                     : theme === "dark"
-                                    ? "rgb(50, 50, 50)"
-                                    : "#ebedf0"
+                                    ? "hsl(var(--background))"
+                                    : "hsl(var(--muted))"
                                   : theme === "dark"
-                                  ? "rgb(20, 20, 20)"
-                                  : "#fafbfc",
+                                  ? "hsl(var(--background)/0.5)"
+                                  : "hsl(var(--muted)/0.5)",
                                 ...(isToday
                                   ? { "--tw-ring-color": habit.color }
                                   : {}),
@@ -501,7 +501,7 @@ const HabitTrackerApp = () => {
             <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
               <span>Less</span>
               <div className="flex gap-1">
-                <div className="w-3 h-3 bg-gray-200 rounded-sm"></div>
+                <div className="w-3 h-3 bg-muted rounded-sm"></div>
                 <div
                   className="w-3 h-3 rounded-sm opacity-30"
                   style={{ backgroundColor: habit.color }}
@@ -533,7 +533,7 @@ const HabitTrackerApp = () => {
         <Card className="mb-4 sm:mb-8 bg-gray-50 dark:bg-neutral-900 w-full">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold">Habit Tracker</h1>
+              <h1 className="text-3xl font-bold font-doto">Habit Tracker</h1>
               <div className="flex items-center gap-4">
                 <Button
                   variant="outline"
@@ -579,7 +579,7 @@ const HabitTrackerApp = () => {
                 value={newHabitName}
                 onChange={(e) => setNewHabitName(e.target.value)}
                 placeholder="Enter habit name..."
-                className="flex-1"
+                className="flex-1 text-xs sm:text-base placeholder:text-secondary"
                 onKeyPress={(e) => e.key === "Enter" && addHabit()}
               />
               <Button onClick={addHabit}>
