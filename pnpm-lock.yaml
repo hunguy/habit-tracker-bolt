@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@fontsource/doto':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@fontsource/geist':
         specifier: ^5.2.6
         version: 5.2.6
@@ -381,6 +384,9 @@ packages:
 
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
+
+  '@fontsource/doto@5.2.8':
+    resolution: {integrity: sha512-WB2SAuvOzIQFZ4xEDE/Bg3dW02ReDEdHY86lHSY2bhnCzsBV9nv8WXLPqjoPAD17LluJRL180bh433Bly58+7g==}
 
   '@fontsource/geist@5.2.6':
     resolution: {integrity: sha512-HKRFUn4fApQr9iGaVLUWG5vs+QYFqhKa5X7AFpT6Gey0Kx0ibvpFceMbMDDdlzzqPiGkvCuvYRUN55rvqXgibg==}
@@ -2146,6 +2152,8 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
 
   '@floating-ui/utils@0.2.10': {}
+
+  '@fontsource/doto@5.2.8': {}
 
   '@fontsource/geist@5.2.6': {}
 
